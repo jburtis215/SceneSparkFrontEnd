@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "classnames": "^2.3.1",
+    "dotenv": "^16.3.1",
+    "next": "latest"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "npm run dev",
+    "start": "next start"
+  }
+}
