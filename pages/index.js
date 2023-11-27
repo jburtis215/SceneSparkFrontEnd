@@ -14,7 +14,10 @@ export default class AiTester extends React.Component {
             apiKey: '',
             highlightedCharacter: '',
             characterBio: '',
+            characterPhys: '',
             showCharacterBio: '',
+            showCharacterImage: '',
+            characterImage: '',
             serverResponse: ''
         };
         this.setGenre = this.setGenre.bind(this);
@@ -24,6 +27,7 @@ export default class AiTester extends React.Component {
         this.handlePickCharacter = this.handlePickCharacter.bind(this)
         this.generateCharacters = this.generateCharacters.bind(this)
         this.generateCharacterBios = this.generateCharacterBios.bind(this)
+        this.generateCharacterImage = this.generateCharacterImage.bind(this)
     }
 
     setGenre(genre) {
@@ -84,8 +88,38 @@ export default class AiTester extends React.Component {
         let characterBio = jsonResponse.bio
         this.setState({characterBio: characterBio})
         this.setState({showCharacterBio: true})
+
+
+        const response2 = await fetch("http://127.0.0.1:7500/genCharacterPhys", {
+            method: "POST",
+            body: JSON.stringify({
+                genre: this.state.genre,
+                character: character
+            }),
+            headers: {
+                "Content-type": "text/plain"
+            }
+        })
+        const jsonResponse2 = await response2.json()
+        let characterPhys = jsonResponse2.phys
+        this.setState({characterPhys: characterPhys})
     }
 
+    async generateCharacterImage(phys) {
+        console.log("state" + this.state.serverResponse);
+        const response = await fetch("http://127.0.0.1:7500/genCharImages", {
+            method: "POST",
+            body: JSON.stringify({
+                phys: phys,
+            }),
+            headers: {
+                "Content-type": "text/plain"
+            }
+        })
+        const jsonResponse = await response.json()
+        this.setState({showCharacterImage: true})
+        this.setState({characterImage: "data:image/png;base64,"+jsonResponse.image})
+    }
     async handlePickCharacter(character) {
         this.setState({highlightedCharacter: character})
         const bioChatCompletion = await openai.chat.completions.create({
@@ -150,7 +184,19 @@ export default class AiTester extends React.Component {
 
                     {this.state.showCharacterBio ? (
                         <div className="border-solid border-2 border-sky-500 max-w-1/3 mx-auto h-100 my-16">
-                            {this.state.characterBio}
+                            <div  onClick={async () => {
+                                await this.generateCharacterImage(this.state.characterPhys);
+                            }}>
+                                {this.state.characterBio}
+                            </div>
+                            <div>
+                                {this.state.characterPhys}
+                            </div>
+                        </div>) : (<div/>)}
+
+                    {this.state.showCharacterImage ? (
+                        <div className="border-solid border-2 border-sky-500 max-w-1/3 mx-auto h-100 my-16">
+                            <img src={this.state.characterImage}/>
                         </div>) : (<div/>)}
                 </div>
             </div>
